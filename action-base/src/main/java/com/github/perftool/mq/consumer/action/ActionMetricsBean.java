@@ -29,11 +29,11 @@ import java.util.concurrent.TimeUnit;
 
 public class ActionMetricsBean {
 
-    private static final String COUNT_NAME = "action_count";
+    private static final String COUNT_NAME = "action";
 
-    private static final String SUCCESS_COUNT_NAME = "action_success_count";
+    private static final String SUCCESS_COUNT_NAME = "action_success";
 
-    private static final String FAIL_COUNT_NAME = "action_fail_count";
+    private static final String FAIL_COUNT_NAME = "action_fail";
 
     private static final String SUCCESS_LATENCY_SUMMARY_NAME = "action_success_latency_summary";
 
