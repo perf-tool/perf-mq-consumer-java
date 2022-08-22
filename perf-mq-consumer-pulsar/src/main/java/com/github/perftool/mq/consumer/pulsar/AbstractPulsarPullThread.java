@@ -20,6 +20,7 @@
 package com.github.perftool.mq.consumer.pulsar;
 
 import com.github.perftool.mq.consumer.common.AbstractPullThread;
+import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.service.ActionService;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +47,18 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
 
     private ExecutorService executor;
 
+    private final E2EMetricsBean e2EMetricsBean;
+
     public AbstractPulsarPullThread(int i, ActionService actionService, List<Semaphore> semaphores,
-                                    List<Consumer<T>> consumers, PulsarConfig pulsarConfig, ExecutorService executor) {
+                                    List<Consumer<T>> consumers, PulsarConfig pulsarConfig, ExecutorService executor,
+                                    E2EMetricsBean e2EMetricsBean) {
         super(i, actionService);
         this.semaphores = semaphores;
         this.consumers = consumers;
         this.pulsarConfig = pulsarConfig;
         this.rateLimiter = pulsarConfig.rateLimiter == -1 ? null : RateLimiter.create(pulsarConfig.rateLimiter);
         this.executor = executor;
+        this.e2EMetricsBean = e2EMetricsBean;
     }
 
     @Override
@@ -97,6 +102,7 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
             });
         } else {
             consumer.receiveAsync().thenAcceptAsync(message -> {
+                e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime());
                 executor.execute(() -> handle(message));
                 consumer.acknowledgeAsync(message);
                 if (semaphore != null) {
@@ -124,6 +130,7 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
                 if (message == null) {
                     continue;
                 }
+                e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime());
                 executor.execute(() -> handle(message));
                 consumer.acknowledge(message);
             }
