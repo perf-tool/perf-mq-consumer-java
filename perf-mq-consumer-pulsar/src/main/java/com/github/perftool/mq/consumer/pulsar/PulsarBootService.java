@@ -21,11 +21,13 @@ package com.github.perftool.mq.consumer.pulsar;
 
 import com.github.perftool.mq.consumer.action.module.ActionMsg;
 import com.github.perftool.mq.consumer.common.config.CommonConfig;
+import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.module.ConsumeMode;
 import com.github.perftool.mq.consumer.common.module.ExchangeType;
 import com.github.perftool.mq.consumer.common.service.ActionService;
 import com.github.perftool.mq.consumer.common.util.NameUtil;
 import com.github.perftool.mq.consumer.common.util.ThreadPool;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.BatchReceivePolicy;
 import org.apache.pulsar.client.api.ClientBuilder;
@@ -66,13 +68,17 @@ public class PulsarBootService {
 
     private final ExecutorService executor;
 
+    private final E2EMetricsBean e2EMetricsBean;
+
     public PulsarBootService(@Autowired PulsarConfig pulsarConfig, @Autowired CommonConfig commonConfig,
-                             @Autowired ActionService actionService, @Autowired ThreadPool threadPool) {
+                             @Autowired ActionService actionService, @Autowired ThreadPool threadPool,
+                             @Autowired MeterRegistry meterRegistry) {
         this.pulsarConfig = pulsarConfig;
         this.commonConfig = commonConfig;
         this.actionService = actionService;
         this.threadPool = threadPool;
         this.executor = threadPool.create("pf-pulsar-consumer");
+        this.e2EMetricsBean = new E2EMetricsBean(meterRegistry, "pulsar");
     }
 
     public void boot() {
@@ -129,6 +135,7 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
+                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime());
                             ActionMsg<byte[]> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(msg.getValue());
@@ -147,6 +154,7 @@ public class PulsarBootService {
                         .messageListener((MessageListener<ByteBuffer>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
+                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime());
                             ActionMsg<ByteBuffer> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(msg.getValue());
@@ -165,6 +173,7 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
+                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime());
                             ActionMsg<String> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(new String(msg.getValue(), StandardCharsets.UTF_8));
@@ -214,7 +223,7 @@ public class PulsarBootService {
         for (int i = 0; i < commonConfig.pullThreads; i++) {
             log.info("start pulsar pull thread {}", i);
             new PulsarPullBytesThread(i, actionService, semaphores, consumerListList.get(i),
-                    pulsarConfig, executor).start();
+                    pulsarConfig, executor, e2EMetricsBean).start();
         }
     }
 
@@ -246,7 +255,7 @@ public class PulsarBootService {
         for (int i = 0; i < commonConfig.pullThreads; i++) {
             log.info("start pulsar pull thread {}", i);
             new PulsarPullByteBufferThread(i, actionService, semaphores, consumerListList.get(i),
-                    pulsarConfig, executor).start();
+                    pulsarConfig, executor, e2EMetricsBean).start();
         }
     }
 
@@ -278,7 +287,7 @@ public class PulsarBootService {
         for (int i = 0; i < commonConfig.pullThreads; i++) {
             log.info("start pulsar pull thread {}", i);
             new PulsarPullStringThread(i, actionService, semaphores, consumerListList.get(i),
-                    pulsarConfig, executor).start();
+                    pulsarConfig, executor, e2EMetricsBean).start();
         }
     }
 

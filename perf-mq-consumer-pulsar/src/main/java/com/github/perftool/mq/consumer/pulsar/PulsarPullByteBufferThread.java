@@ -20,6 +20,7 @@
 package com.github.perftool.mq.consumer.pulsar;
 
 import com.github.perftool.mq.consumer.action.module.ActionMsg;
+import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.service.ActionService;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
@@ -34,19 +35,24 @@ import java.util.concurrent.Semaphore;
 
 public class PulsarPullByteBufferThread extends AbstractPulsarPullThread<ByteBuffer> {
 
+    private final E2EMetricsBean e2EMetricsBean;
+
     public PulsarPullByteBufferThread(int i,
                                       ActionService actionService,
                                       List<Semaphore> semaphores,
                                       List<Consumer<ByteBuffer>> consumers,
                                       PulsarConfig pulsarConfig,
-                                      ExecutorService executor
+                                      ExecutorService executor,
+                                      E2EMetricsBean e2EMetricsBean
     ) {
-        super(i, actionService, semaphores, consumers, pulsarConfig, executor);
+        super(i, actionService, semaphores, consumers, pulsarConfig, executor, e2EMetricsBean);
+        this.e2EMetricsBean = e2EMetricsBean;
     }
 
     protected void handleBatch(Messages<ByteBuffer> messages) {
         final ArrayList<ActionMsg<ByteBuffer>> list = new ArrayList<>();
         for (Message<ByteBuffer> message : messages) {
+            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime());
             list.add(new ActionMsg<>(message.getMessageId().toString(), message.getValue()));
         }
         this.actionService.handleByteBufferBatchMsg(list);
