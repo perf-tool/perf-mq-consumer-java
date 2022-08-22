@@ -48,4 +48,16 @@ public class KafkaConfig {
     @Value("${KAFKA_POLL_MS:500}")
     public int pollMs;
 
+    @Value("${KAFKA_SASL_ENABLE:false}")
+    public boolean saslEnable;
+
+    @Value("${KAFKA_SASL_MECHANISM:PLAIN}")
+    public String saslMechanism;
+
+    @Value("${KAFKA_SASL_USERNAME:}")
+    public String saslUsername;
+
+    @Value("${KAFKA_SASL_PASSWORD:}")
+    public String saslPassword;
+
 }
