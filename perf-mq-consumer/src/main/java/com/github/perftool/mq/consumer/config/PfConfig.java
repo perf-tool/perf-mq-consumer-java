@@ -19,7 +19,7 @@
 
 package com.github.perftool.mq.consumer.config;
 
-import com.github.perftool.mq.consumer.module.Middleware;
+import com.github.perftool.mq.consumer.module.ConsumeType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PfConfig {
 
-    @Value("${MIDDLEWARE:DUMMY}")
-    public Middleware middleware;
+    @Value("${CONSUMETYPE:DUMMY}")
+    public ConsumeType consumeType;
 
 }

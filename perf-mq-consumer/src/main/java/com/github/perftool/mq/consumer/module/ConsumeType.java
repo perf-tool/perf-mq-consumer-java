@@ -19,7 +19,7 @@
 
 package com.github.perftool.mq.consumer.module;
 
-public enum Middleware {
+public enum ConsumeType {
 
     DUMMY,
     KAFKA,
