@@ -19,6 +19,7 @@
 
 package com.github.perftool.mq.consumer.common.service;
 
+import com.github.com.perftoo.mq.consumer.action.empty.EmptyStrAction;
 import com.github.perftool.mq.consumer.action.kafka.ActionKafkaConfig;
 import com.github.perftool.mq.consumer.action.kafka.KafkaBytesAction;
 import com.github.perftool.mq.consumer.action.kafka.KafkaStrAction;
@@ -99,16 +100,13 @@ public class ActionService {
             }
         }
         if (commonConfig.exchangeType.equals(ExchangeType.STRING)) {
-            if (actionConfig.actionType.equals(ActionType.INFLUX)) {
-                strAction = Optional.of(new InfluxStrAction());
-            } else if (actionConfig.actionType.equals(ActionType.INFLUX1)) {
-                strAction = Optional.of(new Influx1StrAction());
-            } else if (actionConfig.actionType.equals(ActionType.KAFKA)) {
-                strAction = Optional.of(new KafkaStrAction(actionKafkaConfig, meterRegistry));
-            } else if (actionConfig.actionType.equals(ActionType.LOG)) {
-                strAction = Optional.of(new LogStrAction(actionLogConfig));
-            } else if (actionConfig.actionType.equals(ActionType.OKHTTP)) {
-                strAction = Optional.of(new OkhttpStrAction(actionHttpConfig));
+            switch (actionConfig.actionType) {
+                case INFLUX -> strAction = Optional.of(new InfluxStrAction());
+                case INFLUX1 -> strAction = Optional.of(new Influx1StrAction());
+                case KAFKA -> strAction = Optional.of(new KafkaStrAction(actionKafkaConfig, meterRegistry));
+                case LOG -> strAction = Optional.of(new LogStrAction(actionLogConfig));
+                case OKHTTP -> strAction = Optional.of(new OkhttpStrAction(actionHttpConfig));
+                case EMPTY -> strAction = Optional.of(new EmptyStrAction());
             }
         }
         byteBufferAction.ifPresent(IAction::init);

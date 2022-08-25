@@ -26,6 +26,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>action-base</module>
+        <module>action-empty</module>
         <module>action-http-common</module>
         <module>action-http-okhttp</module>
         <module>action-influxdb</module>

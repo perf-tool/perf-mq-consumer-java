@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PfConfig {
 
-    @Value("${CONSUMETYPE:DUMMY}")
+    @Value("${CONSUME_TYPE:DUMMY}")
     public ConsumeType consumeType;
 
 }

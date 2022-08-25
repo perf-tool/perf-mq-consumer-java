@@ -17,20 +17,32 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.action.module;
+package com.github.com.perftoo.mq.consumer.action.empty;
 
-public enum ActionType {
+import com.github.perftool.mq.consumer.action.IAction;
+import com.github.perftool.mq.consumer.action.MsgCallback;
+import com.github.perftool.mq.consumer.action.module.ActionMsg;
+import lombok.extern.slf4j.Slf4j;
 
-    EMPTY,
+import java.util.List;
+import java.util.Optional;
 
-    OKHTTP,
+@Slf4j
+public class EmptyStrAction implements IAction<String> {
 
-    INFLUX,
+    public EmptyStrAction() {}
 
-    INFLUX1,
+    @Override
+    public void init() {
 
-    KAFKA,
+    }
 
-    LOG,
+    @Override
+    public void handleBatchMsg(List<ActionMsg<String>> actionMsgs) {
+    }
+
+    @Override
+    public void handleMsg(ActionMsg<String> msg, Optional<MsgCallback> msgCallback) {
+    }
 
 }

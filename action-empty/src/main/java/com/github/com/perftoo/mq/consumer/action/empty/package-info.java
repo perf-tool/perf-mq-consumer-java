@@ -17,20 +17,4 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.action.module;
-
-public enum ActionType {
-
-    EMPTY,
-
-    OKHTTP,
-
-    INFLUX,
-
-    INFLUX1,
-
-    KAFKA,
-
-    LOG,
-
-}
+package com.github.com.perftoo.mq.consumer.action.empty;
