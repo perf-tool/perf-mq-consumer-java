@@ -50,6 +50,10 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaConfig.autoOffsetResetConfig);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaConfig.maxPollRecords);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, kafkaConfig.fetchMinBytes);
+        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, kafkaConfig.fetchMaxBytes);
+        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, kafkaConfig.partitionFetchMaxBytes);
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, kafkaConfig.maxFetchWaitMs);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, getKeyDeserializerName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, getValueDeserializerName());
         if (kafkaConfig.saslEnable) {
