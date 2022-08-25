@@ -35,12 +35,15 @@ public class LogStrAction implements IAction<String> {
 
     private final Optional<Pattern> logPattern;
 
+    private final boolean logEnable;
+
     public LogStrAction(@NotNull ActionLogConfig logConfig) {
         if (StringUtils.EMPTY.equals(logConfig.regex)) {
             this.logPattern = Optional.empty();
         } else {
             this.logPattern = Optional.of(Pattern.compile(logConfig.regex));
         }
+        this.logEnable = logConfig.enable;
     }
 
     @Override
@@ -57,9 +60,9 @@ public class LogStrAction implements IAction<String> {
 
     @Override
     public void handleMsg(ActionMsg<String> msg, Optional<MsgCallback> msgCallback) {
-        if (logPattern.isEmpty()) {
+        if (logPattern.isEmpty() && logEnable) {
             log.info("action msg is {}", msg);
-        } else if (logPattern.get().matcher(msg.getContent()).matches()) {
+        } else if (logPattern.get().matcher(msg.getContent()).matches() && logEnable) {
             log.info("action msg is {}", msg);
         }
     }

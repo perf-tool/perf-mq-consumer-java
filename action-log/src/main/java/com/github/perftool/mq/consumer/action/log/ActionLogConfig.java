@@ -30,4 +30,7 @@ public class ActionLogConfig {
     @Value("${ACTION_LOG_REGEX:}")
     public String regex;
 
+    @Value("${ACTION_LOG_ENABLE:true}")
+    public boolean enable;
+
 }
