@@ -48,6 +48,18 @@ public class KafkaConfig {
     @Value("${KAFKA_POLL_MS:500}")
     public int pollMs;
 
+    @Value("${KAFKA_MAX_FETCH_WAIT_MS:500}")
+    public int maxFetchWaitMs;
+
+    @Value("${KAFKA_FETCH_MIN_BYTES:1}")
+    public int fetchMinBytes;
+
+    @Value("${KAFKA_FETCH_MAX_BYTES:1024}")
+    public int fetchMaxBytes;
+
+    @Value("${KAFKA_PARTITION_FETCH_MAX_BYTES:1024}")
+    public int partitionFetchMaxBytes;
+
     @Value("${KAFKA_SASL_ENABLE:false}")
     public boolean saslEnable;
 
