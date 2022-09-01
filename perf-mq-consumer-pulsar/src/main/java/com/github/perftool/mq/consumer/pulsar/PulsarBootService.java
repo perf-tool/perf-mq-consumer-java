@@ -78,7 +78,7 @@ public class PulsarBootService {
         this.actionService = actionService;
         this.threadPool = threadPool;
         this.executor = threadPool.create("pf-pulsar-consumer");
-        this.e2EMetricsBean = new E2EMetricsBean(meterRegistry, "pulsar");
+        this.e2EMetricsBean = new E2EMetricsBean(meterRegistry, "pulsar", pulsarConfig.printLogMsgDelayMs);
     }
 
     public void boot() {
@@ -135,7 +135,8 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime());
+                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
+                                    msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<byte[]> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(msg.getValue());
@@ -154,7 +155,8 @@ public class PulsarBootService {
                         .messageListener((MessageListener<ByteBuffer>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime());
+                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
+                                    msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<ByteBuffer> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(msg.getValue());
@@ -173,7 +175,8 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime());
+                            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
+                                    msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<String> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(new String(msg.getValue(), StandardCharsets.UTF_8));

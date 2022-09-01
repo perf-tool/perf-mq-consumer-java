@@ -51,7 +51,8 @@ public class PulsarPullBytesThread extends AbstractPulsarPullThread<byte[]> {
     protected void handleBatch(Messages<byte[]> messages) {
         final ArrayList<ActionMsg<byte[]>> list = new ArrayList<>();
         for (Message<byte[]> message : messages) {
-            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime());
+            e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
+                    message.getTopicName(), message.getMessageId().toString());
             list.add(new ActionMsg<>(message.getMessageId().toString(), message.getValue()));
         }
         this.actionService.handleBytesBatchMsg(list);
