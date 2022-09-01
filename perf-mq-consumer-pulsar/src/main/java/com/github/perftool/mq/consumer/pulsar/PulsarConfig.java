@@ -143,6 +143,9 @@ public class PulsarConfig {
     @Value("${PULSAR_TLS_TRUSTSTORE_PASSWORD:}")
     public String tlsTrustStorePassword;
 
+    @Value("${PULSAR_PRINT_LOG_MSG_DELAY_MS:1000}")
+    public int printLogMsgDelayMs;
+
     public String getSubscriptionName() {
         if (StringUtils.isEmpty(subscriptionName)) {
             return UUID.randomUUID().toString();

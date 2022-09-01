@@ -102,7 +102,8 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
             });
         } else {
             consumer.receiveAsync().thenAcceptAsync(message -> {
-                e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime());
+                e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
+                        message.getTopicName(), message.getMessageId().toString());
                 executor.execute(() -> handle(message));
                 consumer.acknowledgeAsync(message);
                 if (semaphore != null) {
@@ -130,7 +131,8 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
                 if (message == null) {
                     continue;
                 }
-                e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime());
+                e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
+                        message.getTopicName(), message.getMessageId().toString());
                 executor.execute(() -> handle(message));
                 consumer.acknowledge(message);
             }
