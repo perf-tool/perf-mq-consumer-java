@@ -140,6 +140,7 @@ public class PulsarBootService {
                             ActionMsg<byte[]> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(msg.getValue());
+                            consumer.acknowledgeAsync(msg);
                             executor.execute(() -> actionService.handleBytesMsg(actionMsg));
                         }).subscribe();
             } catch (PulsarClientException e) {
@@ -160,6 +161,7 @@ public class PulsarBootService {
                             ActionMsg<ByteBuffer> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(msg.getValue());
+                            consumer.acknowledgeAsync(msg);
                             executor.execute(() -> actionService.handleByteBufferMsg(actionMsg));
                         }).subscribe();
             } catch (PulsarClientException e) {
@@ -180,6 +182,7 @@ public class PulsarBootService {
                             ActionMsg<String> actionMsg = new ActionMsg<>();
                             actionMsg.setMessageId(msg.getMessageId().toString());
                             actionMsg.setContent(new String(msg.getValue(), StandardCharsets.UTF_8));
+                            consumer.acknowledgeAsync(msg);
                             executor.execute(() -> actionService.handleStrMsg(actionMsg));
                         }).subscribe();
             } catch (PulsarClientException e) {
