@@ -25,11 +25,6 @@ import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.module.ConsumeMode;
 import com.github.perftool.mq.consumer.common.module.ExchangeType;
 import com.github.perftool.mq.consumer.common.service.ActionService;
-import com.github.perftool.mq.consumer.common.trace.TraceBean;
-import com.github.perftool.mq.consumer.common.trace.TraceReporter;
-import com.github.perftool.mq.consumer.common.trace.module.SpanInfo;
-import com.github.perftool.mq.consumer.common.trace.mongo.IMongoDBClient;
-import com.github.perftool.mq.consumer.common.trace.mongo.MongoDBConfig;
 import com.github.perftool.mq.consumer.common.util.NameUtil;
 import com.github.perftool.mq.consumer.common.util.ThreadPool;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -38,7 +33,6 @@ import org.apache.pulsar.client.api.BatchReceivePolicy;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerBuilder;
-import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageListener;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -76,17 +70,14 @@ public class PulsarBootService {
 
     private final E2EMetricsBean e2EMetricsBean;
 
-    private final TraceReporter traceReporter;
-
     public PulsarBootService(@Autowired PulsarConfig pulsarConfig, @Autowired CommonConfig commonConfig,
                              @Autowired ActionService actionService, @Autowired ThreadPool threadPool,
-                             @Autowired MeterRegistry meterRegistry, @Autowired MongoDBConfig mongoDBConfig) {
+                             @Autowired MeterRegistry meterRegistry) {
         this.pulsarConfig = pulsarConfig;
         this.commonConfig = commonConfig;
         this.actionService = actionService;
         this.threadPool = threadPool;
         this.executor = threadPool.create("pf-pulsar-consumer");
-        this.traceReporter =  new IMongoDBClient(mongoDBConfig);
         this.e2EMetricsBean = new E2EMetricsBean(meterRegistry, "pulsar", pulsarConfig.printLogMsgDelayMs);
     }
 
@@ -144,7 +135,6 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            traceReporter.reportTrace(generateTraceBean(msg));
                             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
                                     msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<byte[]> actionMsg = new ActionMsg<>();
@@ -166,7 +156,6 @@ public class PulsarBootService {
                         .messageListener((MessageListener<ByteBuffer>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            traceReporter.reportTrace(generateTraceBean(msg));
                             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
                                     msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<ByteBuffer> actionMsg = new ActionMsg<>();
@@ -188,7 +177,6 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            traceReporter.reportTrace(generateTraceBean(msg));
                             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
                                     msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<String> actionMsg = new ActionMsg<>();
@@ -196,9 +184,6 @@ public class PulsarBootService {
                             actionMsg.setContent(new String(msg.getValue(), StandardCharsets.UTF_8));
                             consumer.acknowledgeAsync(msg);
                             executor.execute(() -> actionService.handleStrMsg(actionMsg));
-                            Map<String, String> properties = msg.getProperties();
-                            String traceId = properties.get("traceId");
-                            long createTime = System.currentTimeMillis();
                         }).subscribe();
             } catch (PulsarClientException e) {
                 log.error("create consumer fail. topic [{}]", topic, e);
@@ -420,14 +405,4 @@ public class PulsarBootService {
         return topics;
     }
 
-    private <T> TraceBean generateTraceBean(Message<T> msg) {
-        TraceBean traceBean = new TraceBean();
-        traceBean.setTraceId(msg.getProperty("traceId"));
-        long receiveTime = System.currentTimeMillis();
-        traceBean.setCreateTime(receiveTime);
-        traceBean.setSpanId(SpanInfo.builder()
-                .receiveTime(receiveTime)
-                .build());
-        return traceBean;
-    }
 }

@@ -32,8 +32,4 @@ public class ThreadPoolConfig {
 
     @Value("${ACTION_THREAD_POOL_QUEUE_SIZE:10}")
     public int actionThreadPoolQueueSize;
-
-    @Value("${PULSAR_TRACE_ENABLE:false}")
-    public boolean traceEnable;
-
 }

@@ -32,10 +32,6 @@
     </Match>
 
     <Match>
-        <Bug pattern="EI_EXPOSE_REP"/>
-    </Match>
-
-    <Match>
         <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
     </Match>
 
