@@ -17,23 +17,31 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.common.config;
+package com.github.perftool.mq.consumer.common.trace.mongo;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+@Component
 @Configuration
-@Service
-public class ThreadPoolConfig {
+public class MongoDBConfig {
 
-    @Value("${ACTION_THREADS:2}")
-    public int actionThreads;
+    @Value("${MONGODB_HOST:localhost}")
+    public String mongodbHost;
 
-    @Value("${ACTION_THREAD_POOL_QUEUE_SIZE:10}")
-    public int actionThreadPoolQueueSize;
+    @Value("${MONGODB_PORT:27017}")
+    public int mongodbPort;
 
-    @Value("${PULSAR_TRACE_ENABLE:false}")
-    public boolean traceEnable;
+    @Value("${MONGODB_USERNAME:}")
+    public String mongodbUsername;
 
+    @Value("${MONGODB_PASSWORD:}")
+    public String mongodbPassword;
+
+    @Value("${MONGODB_DATABASE_NAME:trace_database1}")
+    public String mongodbDatabaseName;
+
+    @Value("${MONGODB_COLLECT_NAME:trace_collect_consumer}")
+    public String mongodbCollectionName;
 }
