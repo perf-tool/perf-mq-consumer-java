@@ -17,23 +17,4 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.common.config;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
-
-@Configuration
-@Service
-public class ThreadPoolConfig {
-
-    @Value("${ACTION_THREADS:2}")
-    public int actionThreads;
-
-    @Value("${ACTION_THREAD_POOL_QUEUE_SIZE:10}")
-    public int actionThreadPoolQueueSize;
-
-    @Value("${PULSAR_TRACE_ENABLE:false}")
-    public boolean traceEnable;
-
-}
+package com.github.perftool.mq.consumer.common.trace.module;
