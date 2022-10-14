@@ -22,13 +22,14 @@ package com.github.perftool.mq.consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.LocalDateTime;
 
 @Slf4j
 @EnableScheduling
-@SpringBootApplication
+@SpringBootApplication(exclude = MongoAutoConfiguration.class)
 public class Main {
 
     public static void main(String[] args) {

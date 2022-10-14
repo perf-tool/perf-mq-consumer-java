@@ -22,6 +22,7 @@ package com.github.perftool.mq.consumer.pulsar;
 import com.github.perftool.mq.consumer.common.AbstractPullThread;
 import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.service.ActionService;
+import com.github.perftool.mq.consumer.common.trace.TraceReporter;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.Consumer;
@@ -30,6 +31,7 @@ import org.apache.pulsar.client.api.Messages;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -47,11 +49,14 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
 
     private ExecutorService executor;
 
-    private final E2EMetricsBean e2EMetricsBean;
+    protected final E2EMetricsBean e2EMetricsBean;
+
+    protected final TraceReporter traceReporter;
 
     public AbstractPulsarPullThread(int i, ActionService actionService, List<Semaphore> semaphores,
                                     List<Consumer<T>> consumers, PulsarConfig pulsarConfig, ExecutorService executor,
-                                    E2EMetricsBean e2EMetricsBean) {
+                                    E2EMetricsBean e2EMetricsBean,
+                                    TraceReporter traceReporter) {
         super(i, actionService);
         this.semaphores = semaphores;
         this.consumers = consumers;
@@ -59,6 +64,7 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
         this.rateLimiter = pulsarConfig.rateLimiter == -1 ? null : RateLimiter.create(pulsarConfig.rateLimiter);
         this.executor = executor;
         this.e2EMetricsBean = e2EMetricsBean;
+        this.traceReporter = traceReporter;
     }
 
     @Override
@@ -104,6 +110,9 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
             consumer.receiveAsync().thenAcceptAsync(message -> {
                 e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
                         message.getTopicName(), message.getMessageId().toString());
+                if (Optional.ofNullable(traceReporter).isPresent()) {
+                    traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
+                }
                 executor.execute(() -> handle(message));
                 consumer.acknowledgeAsync(message);
                 if (semaphore != null) {
@@ -130,6 +139,9 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
                         consumer.receive(pulsarConfig.syncReceiveTimeoutMs, TimeUnit.MILLISECONDS);
                 if (message == null) {
                     continue;
+                }
+                if (Optional.ofNullable(traceReporter).isPresent()) {
+                    traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
                 }
                 e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
                         message.getTopicName(), message.getMessageId().toString());

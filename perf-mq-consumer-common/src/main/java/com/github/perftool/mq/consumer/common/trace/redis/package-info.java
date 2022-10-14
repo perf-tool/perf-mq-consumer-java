@@ -17,29 +17,4 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.common.config;
-
-import com.github.perftool.mq.consumer.common.module.ExchangeType;
-import com.github.perftool.mq.consumer.common.module.ConsumeMode;
-import com.github.perftool.mq.consumer.common.module.TraceType;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
-
-@Configuration
-@Service
-public class CommonConfig {
-
-    @Value("${CONSUME_MODE:PULL}")
-    public ConsumeMode consumeMode;
-
-    @Value("${EXCHANGE_TYPE:STRING}")
-    public ExchangeType exchangeType;
-
-    @Value("${PULL_THREADS:1}")
-    public int pullThreads;
-
-    @Value("${CONSUMER_TRACE_TYPE:DUMMY}")
-    public TraceType traceType;
-
-}
+package com.github.perftool.mq.consumer.common.trace.redis;

@@ -22,6 +22,7 @@ package com.github.perftool.mq.consumer.pulsar;
 import com.github.perftool.mq.consumer.action.module.ActionMsg;
 import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.service.ActionService;
+import com.github.perftool.mq.consumer.common.trace.TraceReporter;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Messages;
@@ -29,12 +30,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
 public class PulsarPullBytesThread extends AbstractPulsarPullThread<byte[]> {
 
-    private final E2EMetricsBean e2EMetricsBean;
 
     public PulsarPullBytesThread(int i,
                                  ActionService actionService,
@@ -42,10 +43,10 @@ public class PulsarPullBytesThread extends AbstractPulsarPullThread<byte[]> {
                                  List<Consumer<byte[]>> consumers,
                                  PulsarConfig pulsarConfig,
                                  ExecutorService executor,
-                                 E2EMetricsBean e2EMetricsBean
+                                 E2EMetricsBean e2EMetricsBean,
+                                 TraceReporter traceReporter
     ) {
-        super(i, actionService, semaphores, consumers, pulsarConfig, executor, e2EMetricsBean);
-        this.e2EMetricsBean = e2EMetricsBean;
+        super(i, actionService, semaphores, consumers, pulsarConfig, executor, e2EMetricsBean, traceReporter);
     }
 
     protected void handleBatch(Messages<byte[]> messages) {
@@ -53,6 +54,9 @@ public class PulsarPullBytesThread extends AbstractPulsarPullThread<byte[]> {
         for (Message<byte[]> message : messages) {
             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
                     message.getTopicName(), message.getMessageId().toString());
+            if (Optional.ofNullable(traceReporter).isPresent()) {
+                traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
+            }
             list.add(new ActionMsg<>(message.getMessageId().toString(), message.getValue()));
         }
         this.actionService.handleBytesBatchMsg(list);
