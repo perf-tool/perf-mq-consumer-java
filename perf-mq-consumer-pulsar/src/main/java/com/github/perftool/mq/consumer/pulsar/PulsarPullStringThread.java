@@ -22,6 +22,7 @@ package com.github.perftool.mq.consumer.pulsar;
 import com.github.perftool.mq.consumer.action.module.ActionMsg;
 import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.service.ActionService;
+import com.github.perftool.mq.consumer.common.trace.TraceReporter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
@@ -37,7 +38,6 @@ import java.util.concurrent.Semaphore;
 @Slf4j
 public class PulsarPullStringThread extends AbstractPulsarPullThread<byte[]> {
 
-    private final E2EMetricsBean e2EMetricsBean;
 
     public PulsarPullStringThread(int i,
                                   ActionService actionService,
@@ -45,10 +45,10 @@ public class PulsarPullStringThread extends AbstractPulsarPullThread<byte[]> {
                                   List<Consumer<byte[]>> consumers,
                                   PulsarConfig pulsarConfig,
                                   ExecutorService executor,
-                                  E2EMetricsBean e2EMetricsBean
+                                  E2EMetricsBean e2EMetricsBean,
+                                  TraceReporter traceReporter
     ) {
-        super(i, actionService, semaphores, consumers, pulsarConfig, executor, e2EMetricsBean);
-        this.e2EMetricsBean = e2EMetricsBean;
+        super(i, actionService, semaphores, consumers, pulsarConfig, executor, e2EMetricsBean, traceReporter);
     }
 
     protected void handleBatch(Messages<byte[]> messages) {

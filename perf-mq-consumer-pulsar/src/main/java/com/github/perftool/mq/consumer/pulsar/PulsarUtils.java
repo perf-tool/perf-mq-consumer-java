@@ -19,10 +19,25 @@
 
 package com.github.perftool.mq.consumer.pulsar;
 
+import com.github.perftool.mq.consumer.common.trace.TraceBean;
+import com.github.perftool.mq.consumer.common.trace.module.SpanInfo;
+import org.apache.pulsar.client.api.Message;
+
 public class PulsarUtils {
 
     public static String topicFn(String tenant, String namespace, String topic) {
         return String.format("persistent://%s/%s/%s", tenant, namespace, topic);
+    }
+
+    public static  <T> TraceBean generateTraceBean(Message<T> msg) {
+        TraceBean traceBean = new TraceBean();
+        traceBean.setTraceId(msg.getProperty("traceId"));
+        long receiveTime = System.currentTimeMillis();
+        traceBean.setCreateTime(receiveTime);
+        traceBean.setSpanId(SpanInfo.builder()
+                .receiveTime(receiveTime)
+                .build());
+        return traceBean;
     }
 
 }
