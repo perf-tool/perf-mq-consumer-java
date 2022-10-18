@@ -26,8 +26,8 @@ import com.github.perftool.mq.consumer.common.module.ConsumeMode;
 import com.github.perftool.mq.consumer.common.module.ExchangeType;
 import com.github.perftool.mq.consumer.common.service.ActionService;
 import com.github.perftool.mq.consumer.common.trace.TraceReporter;
-import com.github.perftool.mq.consumer.common.trace.mongo.IMongoDBClient;
-import com.github.perftool.mq.consumer.common.trace.mongo.MongoDBConfig;
+import com.github.perftool.mq.consumer.common.trace.mongo.MongoClientImpl;
+import com.github.perftool.mq.consumer.common.trace.mongo.MongoConfig;
 import com.github.perftool.mq.consumer.common.trace.redis.RedisClientImpl;
 import com.github.perftool.mq.consumer.common.trace.redis.RedisConfig;
 import com.github.perftool.mq.consumer.common.util.NameUtil;
@@ -80,7 +80,7 @@ public class PulsarBootService {
 
     public PulsarBootService(@Autowired PulsarConfig pulsarConfig, @Autowired CommonConfig commonConfig,
                              @Autowired ActionService actionService, @Autowired ThreadPool threadPool,
-                             @Autowired MeterRegistry meterRegistry, @Autowired MongoDBConfig mongoDBConfig,
+                             @Autowired MeterRegistry meterRegistry, @Autowired MongoConfig mongoConfig,
                              @Autowired RedisConfig redisConfig) {
         this.pulsarConfig = pulsarConfig;
         this.commonConfig = commonConfig;
@@ -88,9 +88,10 @@ public class PulsarBootService {
         this.threadPool = threadPool;
         this.executor = threadPool.create("pf-pulsar-consumer");
         TraceReporter traceReporter1;
+        log.info("{} trace reporter.", commonConfig.traceType);
         switch (commonConfig.traceType) {
             case REDIS -> traceReporter1 =  new RedisClientImpl(redisConfig);
-            case MONGO -> traceReporter1 = new IMongoDBClient(mongoDBConfig);
+            case MONGO -> traceReporter1 = new MongoClientImpl(mongoConfig);
             default -> traceReporter1 = null;
         }
         this.traceReporter = traceReporter1;
