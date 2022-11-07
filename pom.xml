@@ -50,6 +50,7 @@
         <influxdb-client-java.version>6.7.0</influxdb-client-java.version>
         <mqtt.version>1.2.5</mqtt.version>
         <mongo-java-driver.version>3.12.11</mongo-java-driver.version>
+        <perf-trace.version>0.0.5</perf-trace.version>
         <pulsar.verion>2.10.1</pulsar.verion>
         <sh-sdk.version>3.1.15</sh-sdk.version>
         <!-- plugin -->
@@ -92,6 +93,11 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.perf-tool</groupId>
+            <artifactId>perf-trace</artifactId>
+            <version>${perf-trace.version}</version>
         </dependency>
         <dependency>
             <groupId>com.ctrip.framework.apollo</groupId>

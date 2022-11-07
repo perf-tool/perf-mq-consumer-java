@@ -22,7 +22,7 @@ package com.github.perftool.mq.consumer.pulsar;
 import com.github.perftool.mq.consumer.action.module.ActionMsg;
 import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.service.ActionService;
-import com.github.perftool.mq.consumer.common.trace.TraceReporter;
+import io.github.perftool.trace.report.ITraceReporter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
@@ -46,7 +46,7 @@ public class PulsarPullStringThread extends AbstractPulsarPullThread<byte[]> {
                                   PulsarConfig pulsarConfig,
                                   ExecutorService executor,
                                   E2EMetricsBean e2EMetricsBean,
-                                  TraceReporter traceReporter
+                                  ITraceReporter traceReporter
     ) {
         super(i, actionService, semaphores, consumers, pulsarConfig, executor, e2EMetricsBean, traceReporter);
     }
