@@ -21,18 +21,14 @@ package com.github.perftool.mq.consumer.pulsar;
 
 import io.github.perftool.trace.module.SpanInfo;
 import io.github.perftool.trace.module.TraceBean;
-import io.github.perftool.trace.util.EnvUtil;
+import io.github.perftool.trace.report.ReportUtil;
 import io.github.perftool.trace.util.InboundCounter;
 import io.github.perftool.trace.util.JacksonUtil;
-import io.github.perftool.trace.util.StringTool;
 import org.apache.pulsar.client.api.Message;
 
 public class PulsarUtils {
 
-    private static final String IP_NUMBER = StringTool.formatIp(System.getenv("POD_IP"));
     private static final InboundCounter inboundCounter = new InboundCounter(999);
-
-    private static final String TRACE_REPORT_SCENE = EnvUtil.getString("TRACE_REPORT_SCENE", "default");
 
     public static String topicFn(String tenant, String namespace, String topic) {
         return String.format("persistent://%s/%s/%s", tenant, namespace, topic);
@@ -40,11 +36,7 @@ public class PulsarUtils {
 
     public static <T> TraceBean generateTraceBean(Message<T> msg) {
         TraceBean traceBean = JacksonUtil.toObject(msg.getProperty("traceId"), TraceBean.class);
-        String spanId = String.format("%s-%s-%s-%d",
-                TRACE_REPORT_SCENE,
-                System.currentTimeMillis(),
-                IP_NUMBER,
-                inboundCounter.get());
+        String spanId = String.format("%s-%d", ReportUtil.traceIdPrefix(), inboundCounter.get());
         SpanInfo spanInfo = traceBean.getSpanInfo();
         spanInfo.setSpanId(spanId);
         traceBean.setSpanInfo(spanInfo);

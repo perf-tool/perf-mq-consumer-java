@@ -48,9 +48,9 @@
         <annotations.version>23.0.0</annotations.version>
         <apollo.version>2.0.1</apollo.version>
         <influxdb-client-java.version>6.7.0</influxdb-client-java.version>
-        <perf-trace.version>0.0.4</perf-trace.version>
         <mqtt.version>1.2.5</mqtt.version>
         <mongo-java-driver.version>3.12.11</mongo-java-driver.version>
+        <perf-trace.version>0.0.5</perf-trace.version>
         <pulsar.verion>2.10.1</pulsar.verion>
         <sh-sdk.version>3.1.15</sh-sdk.version>
         <!-- plugin -->

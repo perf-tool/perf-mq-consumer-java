@@ -28,10 +28,7 @@ import com.github.perftool.mq.consumer.common.service.ActionService;
 import com.github.perftool.mq.consumer.common.util.NameUtil;
 import com.github.perftool.mq.consumer.common.util.ThreadPool;
 import io.github.perftool.trace.report.ITraceReporter;
-import io.github.perftool.trace.report.mongo.MongoConfig;
-import io.github.perftool.trace.report.mongo.MongoTraceReporter;
-import io.github.perftool.trace.report.redis.RedisConfig;
-import io.github.perftool.trace.report.redis.RedisTraceReporter;
+import io.github.perftool.trace.report.ReportUtil;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.BatchReceivePolicy;
@@ -60,8 +57,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class PulsarBootService {
 
-    private ThreadPool threadPool;
-
     private PulsarClient pulsarClient;
 
     private final PulsarConfig pulsarConfig;
@@ -84,16 +79,8 @@ public class PulsarBootService {
         this.pulsarConfig = pulsarConfig;
         this.commonConfig = commonConfig;
         this.actionService = actionService;
-        this.threadPool = threadPool;
         this.executor = threadPool.create("pf-pulsar-consumer");
-        ITraceReporter traceReporter1;
-        log.info("{} trace reporter.", commonConfig.traceType);
-        switch (commonConfig.traceType) {
-            case REDIS -> traceReporter1 =  new RedisTraceReporter(RedisConfig.fromEnv());
-            case MONGO -> traceReporter1 = new MongoTraceReporter(MongoConfig.fromEnv());
-            default -> traceReporter1 = null;
-        }
-        this.traceReporter = traceReporter1;
+        this.traceReporter = ReportUtil.getReporter();
         this.e2EMetricsBean = new E2EMetricsBean(meterRegistry, "pulsar", pulsarConfig.printLogMsgDelayMs);
     }
 
