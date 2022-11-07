@@ -17,11 +17,20 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.common.trace.redis.functional;
+package com.github.perftool.mq.consumer.common.util;
 
-import io.lettuce.core.api.sync.RedisCommands;
+import java.util.concurrent.atomic.AtomicInteger;
 
-@FunctionalInterface
-public interface SyncCommandCallback<T> {
-    T doInConnection(RedisCommands<String, String> commands);
+public class TransformUtil {
+
+    private static final AtomicInteger INCREASE = new AtomicInteger();
+
+    public static int getIncreaseNumber(int maxNumber) {
+        return INCREASE.accumulateAndGet(1, ((left, right) -> {
+            int val = left + right;
+            return maxNumber < val ? 0 : val;
+        }));
+
+    }
+
 }

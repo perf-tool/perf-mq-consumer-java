@@ -25,13 +25,13 @@ import com.github.perftool.mq.consumer.common.metrics.E2EMetricsBean;
 import com.github.perftool.mq.consumer.common.module.ConsumeMode;
 import com.github.perftool.mq.consumer.common.module.ExchangeType;
 import com.github.perftool.mq.consumer.common.service.ActionService;
-import com.github.perftool.mq.consumer.common.trace.TraceReporter;
-import com.github.perftool.mq.consumer.common.trace.mongo.MongoClientImpl;
-import com.github.perftool.mq.consumer.common.trace.mongo.MongoConfig;
-import com.github.perftool.mq.consumer.common.trace.redis.RedisClientImpl;
-import com.github.perftool.mq.consumer.common.trace.redis.RedisConfig;
 import com.github.perftool.mq.consumer.common.util.NameUtil;
 import com.github.perftool.mq.consumer.common.util.ThreadPool;
+import io.github.perftool.trace.report.ITraceReporter;
+import io.github.perftool.trace.report.mongo.MongoConfig;
+import io.github.perftool.trace.report.mongo.MongoTraceReporter;
+import io.github.perftool.trace.report.redis.RedisConfig;
+import io.github.perftool.trace.report.redis.RedisTraceReporter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.BatchReceivePolicy;
@@ -76,22 +76,21 @@ public class PulsarBootService {
 
     private final E2EMetricsBean e2EMetricsBean;
 
-    private final TraceReporter traceReporter;
+    private final ITraceReporter traceReporter;
 
     public PulsarBootService(@Autowired PulsarConfig pulsarConfig, @Autowired CommonConfig commonConfig,
                              @Autowired ActionService actionService, @Autowired ThreadPool threadPool,
-                             @Autowired MeterRegistry meterRegistry, @Autowired MongoConfig mongoConfig,
-                             @Autowired RedisConfig redisConfig) {
+                             @Autowired MeterRegistry meterRegistry) {
         this.pulsarConfig = pulsarConfig;
         this.commonConfig = commonConfig;
         this.actionService = actionService;
         this.threadPool = threadPool;
         this.executor = threadPool.create("pf-pulsar-consumer");
-        TraceReporter traceReporter1;
+        ITraceReporter traceReporter1;
         log.info("{} trace reporter.", commonConfig.traceType);
         switch (commonConfig.traceType) {
-            case REDIS -> traceReporter1 =  new RedisClientImpl(redisConfig);
-            case MONGO -> traceReporter1 = new MongoClientImpl(mongoConfig);
+            case REDIS -> traceReporter1 =  new RedisTraceReporter(RedisConfig.fromEnv());
+            case MONGO -> traceReporter1 = new MongoTraceReporter(MongoConfig.fromEnv());
             default -> traceReporter1 = null;
         }
         this.traceReporter = traceReporter1;
