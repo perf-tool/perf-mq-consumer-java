@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
@@ -55,9 +54,7 @@ public class PulsarPullByteBufferThread extends AbstractPulsarPullThread<ByteBuf
         for (Message<ByteBuffer> message : messages) {
             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
                     message.getTopicName(), message.getMessageId().toString());
-            if (Optional.ofNullable(traceReporter).isPresent()) {
-                traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
-            }
+            traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
             list.add(new ActionMsg<>(message.getMessageId().toString(), message.getValue()));
         }
         this.actionService.handleByteBufferBatchMsg(list);

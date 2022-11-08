@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -138,9 +137,7 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            if (Optional.ofNullable(traceReporter).isPresent()) {
-                                traceReporter.reportTrace(PulsarUtils.generateTraceBean(msg));
-                            }
+                            traceReporter.reportTrace(PulsarUtils.generateTraceBean(msg));
                             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
                                     msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<byte[]> actionMsg = new ActionMsg<>();
@@ -162,9 +159,7 @@ public class PulsarBootService {
                         .messageListener((MessageListener<ByteBuffer>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            if (Optional.ofNullable(traceReporter).isPresent()) {
-                                traceReporter.reportTrace(PulsarUtils.generateTraceBean(msg));
-                            }
+                            traceReporter.reportTrace(PulsarUtils.generateTraceBean(msg));
                             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
                                     msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<ByteBuffer> actionMsg = new ActionMsg<>();
@@ -186,9 +181,7 @@ public class PulsarBootService {
                         .messageListener((MessageListener<byte[]>) (consumer, msg)
                                 -> {
                             log.debug("do nothing {}", msg.getMessageId());
-                            if (Optional.ofNullable(traceReporter).isPresent()) {
-                                traceReporter.reportTrace(PulsarUtils.generateTraceBean(msg));
-                            }
+                            traceReporter.reportTrace(PulsarUtils.generateTraceBean(msg));
                             e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - msg.getPublishTime(),
                                     msg.getTopicName(), msg.getMessageId().toString());
                             ActionMsg<String> actionMsg = new ActionMsg<>();

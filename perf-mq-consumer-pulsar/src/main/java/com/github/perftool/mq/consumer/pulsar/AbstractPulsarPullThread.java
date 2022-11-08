@@ -31,7 +31,6 @@ import org.apache.pulsar.client.api.Messages;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -110,9 +109,7 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
             consumer.receiveAsync().thenAcceptAsync(message -> {
                 e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
                         message.getTopicName(), message.getMessageId().toString());
-                if (Optional.ofNullable(traceReporter).isPresent()) {
-                    traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
-                }
+                traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
                 executor.execute(() -> handle(message));
                 consumer.acknowledgeAsync(message);
                 if (semaphore != null) {
@@ -140,9 +137,7 @@ public abstract class AbstractPulsarPullThread<T> extends AbstractPullThread {
                 if (message == null) {
                     continue;
                 }
-                if (Optional.ofNullable(traceReporter).isPresent()) {
-                    traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
-                }
+                traceReporter.reportTrace(PulsarUtils.generateTraceBean(message));
                 e2EMetricsBean.recodeE2ELatency(System.currentTimeMillis() - message.getPublishTime(),
                         message.getTopicName(), message.getMessageId().toString());
                 executor.execute(() -> handle(message));
