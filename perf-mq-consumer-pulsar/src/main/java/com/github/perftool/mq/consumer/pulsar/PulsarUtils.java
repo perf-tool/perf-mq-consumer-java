@@ -24,6 +24,7 @@ import io.github.perftool.trace.module.TraceBean;
 import io.github.perftool.trace.report.ReportUtil;
 import io.github.perftool.trace.util.InboundCounter;
 import io.github.perftool.trace.util.JacksonUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.api.Message;
 
 public class PulsarUtils {
@@ -35,7 +36,11 @@ public class PulsarUtils {
     }
 
     public static <T> TraceBean generateTraceBean(Message<T> msg) {
-        TraceBean traceBean = JacksonUtil.toObject(msg.getProperty("traceId"), TraceBean.class);
+        String jsonStr = msg.getProperty("traceId");
+        if (StringUtils.isEmpty(jsonStr)) {
+            return null;
+        }
+        TraceBean traceBean = JacksonUtil.toObject(jsonStr, TraceBean.class);
         String spanId = String.format("%s-%d", ReportUtil.traceIdPrefix(), inboundCounter.get());
         SpanInfo spanInfo = traceBean.getSpanInfo();
         spanInfo.setSpanId(spanId);
