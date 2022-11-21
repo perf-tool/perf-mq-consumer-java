@@ -24,6 +24,7 @@ import io.github.perftool.trace.module.TraceBean;
 import io.github.perftool.trace.report.ReportUtil;
 import io.github.perftool.trace.util.InboundCounter;
 import io.github.perftool.trace.util.JacksonUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.api.Message;
 
 public class PulsarUtils {
