@@ -35,7 +35,11 @@ public class PulsarUtils {
     }
 
     public static <T> TraceBean generateTraceBean(Message<T> msg) {
-        TraceBean traceBean = JacksonUtil.toObject(msg.getProperty("traceId"), TraceBean.class);
+        String jsonStr = msg.getProperty("traceId");
+        if (jsonStr == null || jsonStr.length() == 0) {
+            return null;
+        }
+        TraceBean traceBean = JacksonUtil.toObject(jsonStr, TraceBean.class);
         String spanId = String.format("%s-%d", ReportUtil.traceIdPrefix(), inboundCounter.get());
         SpanInfo spanInfo = traceBean.getSpanInfo();
         spanInfo.setSpanId(spanId);
