@@ -53,7 +53,7 @@ class OkhttpStrActionTest {
     }
 
     @AfterAll
-    private static void shutdown() throws Exception {
+    static void shutdown() throws Exception {
         server.shutdown();
     }
 

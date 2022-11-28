@@ -23,11 +23,11 @@ import com.github.perftool.mq.consumer.pulsar.PulsarBootService;
 import com.github.perftool.mq.consumer.config.PfConfig;
 import com.github.perftool.mq.consumer.kafka.KafkaBootService;
 import com.github.perftool.mq.consumer.mqtt.MqttBootService;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
