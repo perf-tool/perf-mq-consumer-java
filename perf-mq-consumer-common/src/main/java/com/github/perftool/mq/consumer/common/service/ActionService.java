@@ -40,12 +40,12 @@ import com.github.perftool.mq.consumer.common.config.ActionConfig;
 import com.github.perftool.mq.consumer.common.config.CommonConfig;
 import com.github.perftool.mq.consumer.action.module.ActionType;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
