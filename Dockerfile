@@ -17,13 +17,13 @@
 # under the License.
 #
 
-FROM perftool/compile:jdk17-mvn AS build
+FROM shoothzj/compile:jdk17-mvn AS build
 COPY . /opt/perf/compile
 WORKDIR /opt/perf/compile
 RUN mvn -B clean package -Dmaven.test.skip=true
 
 
-FROM perftool/base:jdk17
+FROM shoothzj/base:jdk17
 
 COPY --from=build /opt/perf/compile/perf-mq-consumer/target/perf-mq-consumer-0.0.1-SNAPSHOT.jar /opt/perf/pf-consumer.jar
 COPY --from=build /opt/perf/compile/perf-mq-consumer/target/lib/* /opt/perf/lib/
