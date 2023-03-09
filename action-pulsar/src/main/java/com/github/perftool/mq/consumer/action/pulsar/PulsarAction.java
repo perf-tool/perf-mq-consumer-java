@@ -29,7 +29,6 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.SizeUnit;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -76,7 +75,7 @@ public class PulsarAction implements IAction<byte[]> {
     public void handleMsg(ActionMsg<byte[]> msg, Optional<MsgCallback> msgCallback) {
         try {
             CompletableFuture<MessageId> messageIdCompletableFuture = producer
-                    .sendAsync(msg.toString().getBytes(StandardCharsets.UTF_8));
+                    .sendAsync(msg.getContent());
             messageIdCompletableFuture.whenComplete((messageId, throwable) -> {
                 if (throwable != null) {
                     log.error("error is ", throwable);
