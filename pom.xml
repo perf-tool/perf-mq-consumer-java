@@ -38,6 +38,7 @@
         <module>perf-mq-consumer-kafka</module>
         <module>perf-mq-consumer-mqtt</module>
         <module>perf-mq-consumer-pulsar</module>
+        <module>action-pulsar</module>
     </modules>
 
     <properties>
