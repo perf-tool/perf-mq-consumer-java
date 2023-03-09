@@ -17,22 +17,4 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.action.module;
-
-public enum ActionType {
-
-    EMPTY,
-
-    OKHTTP,
-
-    INFLUX,
-
-    INFLUX1,
-
-    KAFKA,
-
-    LOG,
-
-    PULSAR,
-
-}
+package com.github.perftool.mq.consumer.action.pulsar;
