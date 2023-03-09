@@ -29,18 +29,19 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.SizeUnit;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class PulsarAction implements IAction<byte[]> {
+public class PulsarStrAction implements IAction<String> {
     private final ActionPulsarConfig config;
 
     private Producer<byte[]> producer;
 
-    public PulsarAction(ActionPulsarConfig config) {
+    public PulsarStrAction(ActionPulsarConfig config) {
         this.config = config;
     }
 
@@ -65,17 +66,17 @@ public class PulsarAction implements IAction<byte[]> {
     }
 
     @Override
-    public void handleBatchMsg(List<ActionMsg<byte[]>> actionMsgs) {
-        for (ActionMsg<byte[]> actionMsg : actionMsgs) {
+    public void handleBatchMsg(List<ActionMsg<String>> actionMsgs) {
+        for (ActionMsg<String> actionMsg : actionMsgs) {
             this.handleMsg(actionMsg, Optional.empty());
         }
     }
 
     @Override
-    public void handleMsg(ActionMsg<byte[]> msg, Optional<MsgCallback> msgCallback) {
+    public void handleMsg(ActionMsg<String> msg, Optional<MsgCallback> msgCallback) {
         try {
             CompletableFuture<MessageId> messageIdCompletableFuture = producer
-                    .sendAsync(msg.getContent());
+                    .sendAsync(msg.getContent().getBytes(StandardCharsets.UTF_8));
             messageIdCompletableFuture.whenComplete((messageId, throwable) -> {
                 if (throwable != null) {
                     log.error("error is ", throwable);
