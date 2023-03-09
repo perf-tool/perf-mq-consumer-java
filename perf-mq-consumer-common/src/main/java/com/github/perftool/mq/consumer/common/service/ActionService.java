@@ -24,7 +24,8 @@ import com.github.perftool.mq.consumer.action.kafka.ActionKafkaConfig;
 import com.github.perftool.mq.consumer.action.kafka.KafkaBytesAction;
 import com.github.perftool.mq.consumer.action.kafka.KafkaStrAction;
 import com.github.perftool.mq.consumer.action.pulsar.ActionPulsarConfig;
-import com.github.perftool.mq.consumer.action.pulsar.PulsarAction;
+import com.github.perftool.mq.consumer.action.pulsar.PulsarBytesAction;
+import com.github.perftool.mq.consumer.action.pulsar.PulsarStrAction;
 import com.github.perftool.mq.consumer.common.module.ExchangeType;
 import com.github.perftool.mq.consumer.action.IAction;
 import com.github.perftool.mq.consumer.action.MsgCallback;
@@ -104,7 +105,7 @@ public class ActionService {
                 bytesAction = Optional.of(new KafkaBytesAction(actionKafkaConfig, meterRegistry));
             }
             if (actionConfig.actionType.equals(ActionType.PULSAR)) {
-                bytesAction = Optional.of(new PulsarAction(actionPulsarConfig));
+                bytesAction = Optional.of(new PulsarBytesAction(actionPulsarConfig));
             }
         }
         if (commonConfig.exchangeType.equals(ExchangeType.STRING)) {
@@ -114,6 +115,7 @@ public class ActionService {
                 case KAFKA -> strAction = Optional.of(new KafkaStrAction(actionKafkaConfig, meterRegistry));
                 case LOG -> strAction = Optional.of(new LogStrAction(actionLogConfig));
                 case OKHTTP -> strAction = Optional.of(new OkhttpStrAction(actionHttpConfig));
+                case PULSAR -> strAction = Optional.of(new PulsarStrAction(actionPulsarConfig));
                 default -> strAction = Optional.of(new EmptyStrAction());
             }
         }
