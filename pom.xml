@@ -33,12 +33,12 @@
         <module>action-influxdb1</module>
         <module>action-kafka</module>
         <module>action-log</module>
+        <module>action-pulsar</module>
         <module>perf-mq-consumer</module>
         <module>perf-mq-consumer-common</module>
         <module>perf-mq-consumer-kafka</module>
         <module>perf-mq-consumer-mqtt</module>
         <module>perf-mq-consumer-pulsar</module>
-        <module>action-pulsar</module>
     </modules>
 
     <properties>
@@ -49,12 +49,12 @@
         <annotations.version>24.0.1</annotations.version>
         <apollo.version>2.1.0</apollo.version>
         <influxdb-client-java.version>6.7.0</influxdb-client-java.version>
+        <kafka.version>2.4.0</kafka.version>
         <mqtt.version>1.2.5</mqtt.version>
         <mongo-java-driver.version>3.12.12</mongo-java-driver.version>
         <perf-trace.version>0.0.9</perf-trace.version>
         <pulsar.verion>2.11.0</pulsar.verion>
         <sh-sdk.version>3.1.15</sh-sdk.version>
-        <kafka.version>2.4.0</kafka.version>
         <!-- plugin -->
         <checkstyle-plugin.version>3.2.1</checkstyle-plugin.version>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
