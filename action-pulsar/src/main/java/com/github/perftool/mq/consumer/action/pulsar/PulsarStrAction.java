@@ -81,7 +81,7 @@ public class PulsarStrAction implements IAction<String> {
                 if (throwable != null) {
                     log.error("error is ", throwable);
                 } else {
-                    log.info("message id is [{}]", messageId);
+                    log.info("original message id is [{}] message id is [{}]", msg.getMessageId(), messageId);
                 }
             });
         } catch (Exception e) {
