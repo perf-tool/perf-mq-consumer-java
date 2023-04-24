@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -46,6 +46,8 @@ public class KafkaPullBytesThread extends AbstractKafkaPullThread<byte[]> {
     protected void handle(ConsumerRecord<byte[], byte[]> record) {
         ActionMsg<byte[]> actionMsg = new ActionMsg<>();
         actionMsg.setMessageId(String.valueOf(record.offset()));
+        actionMsg.setPartition(record.partition());
+        actionMsg.setHeaders(KafkaUtil.headers(record));
         actionMsg.setContent(record.value());
         actionService.handleBytesMsg(actionMsg);
     }

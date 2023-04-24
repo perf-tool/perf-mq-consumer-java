@@ -17,4 +17,23 @@
  * under the License.
  */
 
-package com.github.perftool.mq.consumer.action.module;
+package com.github.perftool.mq.consumer.kafka;
+
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+public class KafkaUtil {
+    public static Map<String, String> headers(ConsumerRecord<?, ?> record) {
+        Headers headers = record.headers();
+        Map<String, String> map = new HashMap<>();
+        for (Header header : headers) {
+            map.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
+        }
+        return map;
+    }
+}

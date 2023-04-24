@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,10 +22,16 @@ package com.github.perftool.mq.consumer.action.module;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 @Data
 public class ActionMsg<T> {
     @Nullable
     private String messageId;
+
+    private int partition;
+
+    private Map<String, String> headers;
 
     private T content;
 
@@ -35,6 +41,19 @@ public class ActionMsg<T> {
 
     public ActionMsg(@Nullable String messageId, T content) {
         this.messageId = messageId;
+        this.content = content;
+    }
+
+    public ActionMsg(@Nullable String messageId, int partition, T content) {
+        this.messageId = messageId;
+        this.partition = partition;
+        this.content = content;
+    }
+
+    public ActionMsg(@Nullable String messageId, int partition, Map<String, String> headers, T content) {
+        this.messageId = messageId;
+        this.partition = partition;
+        this.headers = headers;
         this.content = content;
     }
 

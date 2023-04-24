@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -81,7 +81,8 @@ public class PulsarStrAction implements IAction<String> {
                 if (throwable != null) {
                     log.error("error is ", throwable);
                 } else {
-                    log.info("original message id is [{}] message id is [{}]", msg.getMessageId(), messageId);
+                    log.info("original partition is [{}] message id is [{}] header is [{}] message id is [{}]",
+                            msg.getPartition(), msg.getMessageId(), msg.getHeaders(), messageId);
                 }
             });
         } catch (Exception e) {
