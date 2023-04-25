@@ -51,7 +51,7 @@
         <influxdb-client-java.version>6.8.0</influxdb-client-java.version>
         <kafka.version>2.4.0</kafka.version>
         <mqtt.version>1.2.5</mqtt.version>
-        <mongo-java-driver.version>3.12.12</mongo-java-driver.version>
+        <mongo-java-driver.version>3.12.13</mongo-java-driver.version>
         <perf-trace.version>0.0.9</perf-trace.version>
         <pulsar.verion>2.11.0</pulsar.verion>
         <sh-sdk.version>3.1.15</sh-sdk.version>
