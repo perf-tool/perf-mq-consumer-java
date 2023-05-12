@@ -31,4 +31,6 @@ COPY --from=build /opt/perf/compile/perf-mq-consumer/target/conf/* /opt/perf/con
 
 COPY docker-build /opt/perf
 
+WORKDIR /opt/perf
+
 CMD ["/usr/bin/dumb-init", "bash", "-vx","/opt/perf/scripts/start.sh"]
