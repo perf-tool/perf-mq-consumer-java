@@ -34,16 +34,23 @@ import org.apache.kafka.common.security.auth.SecurityProtocol;
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
+    private final List<String> topics;
 
     private final KafkaConfig kafkaConfig;
 
     private final KafkaConsumer<T, T> consumer;
 
+    private long lastPollTime;
+
+    private long lastOffset;
+
     public AbstractKafkaPullThread(int i, ActionService actionService, List<String> topics, KafkaConfig kafkaConfig) {
         super(i, actionService);
+        this.topics = topics;
         this.kafkaConfig = kafkaConfig;
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.addr);
@@ -74,7 +81,7 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
             props.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
         }
         consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(topics);
+        consumer.subscribe(this.topics);
     }
 
     protected abstract String getKeyDeserializerName();
@@ -84,7 +91,15 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
     @Override
     protected void pull() {
         ConsumerRecords<T, T> consumerRecords = consumer.poll(Duration.ofMillis(kafkaConfig.pollMs));
+        if (System.currentTimeMillis() - lastPollTime > TimeUnit.SECONDS.toMillis(1)) {
+            log.warn("topics {} the last poll message is greater than 1 second", topics);
+        }
         for (ConsumerRecord<T, T> record : consumerRecords) {
+            if (record.offset() - lastOffset > 1) {
+                log.warn("offset jump, from {} to {} diff {}",
+                        record.offset(), lastOffset, record.offset() - lastOffset);
+            }
+            lastOffset = record.offset();
             log.debug("receive a record, offset is [{}]", record.offset());
             this.handle(record);
         }
