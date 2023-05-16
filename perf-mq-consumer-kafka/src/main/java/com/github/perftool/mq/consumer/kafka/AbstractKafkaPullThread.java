@@ -32,6 +32,7 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,7 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
 
     private long lastPollTime;
 
-    private long lastOffset;
+    private final HashMap<Integer, Long> partitionOffsetMap;
 
     public AbstractKafkaPullThread(int i, ActionService actionService, List<String> topics, KafkaConfig kafkaConfig) {
         super(i, actionService);
@@ -82,6 +83,7 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
         }
         consumer = new KafkaConsumer<>(props);
         consumer.subscribe(this.topics);
+        partitionOffsetMap = new HashMap<>();
     }
 
     protected abstract String getKeyDeserializerName();
@@ -94,12 +96,14 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
         if (System.currentTimeMillis() - lastPollTime > TimeUnit.SECONDS.toMillis(1)) {
             log.warn("topics {} the last poll message is greater than 1 second", topics);
         }
+        lastPollTime = System.currentTimeMillis();
         for (ConsumerRecord<T, T> record : consumerRecords) {
+            Long lastOffset = partitionOffsetMap.getOrDefault(record.partition(), 0L);
             if (record.offset() - lastOffset > 1) {
                 log.warn("offset jump, from {} to {} diff {}",
                         record.offset(), lastOffset, record.offset() - lastOffset);
             }
-            lastOffset = record.offset();
+            partitionOffsetMap.put(record.partition(), record.offset());
             log.debug("receive a record, offset is [{}]", record.offset());
             this.handle(record);
         }
