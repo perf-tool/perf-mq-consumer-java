@@ -100,8 +100,8 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
         for (ConsumerRecord<T, T> record : consumerRecords) {
             Long lastOffset = partitionOffsetMap.getOrDefault(record.partition(), 0L);
             if (record.offset() - lastOffset > 1) {
-                log.warn("offset jump, from {} to {} diff {}",
-                        record.offset(), lastOffset, record.offset() - lastOffset);
+                log.warn("partition {} offset jump, from {} to {} diff {}",
+                        record.partition(), record.offset(), lastOffset, record.offset() - lastOffset);
             }
             partitionOffsetMap.put(record.partition(), record.offset());
             log.debug("receive a record, offset is [{}]", record.offset());
