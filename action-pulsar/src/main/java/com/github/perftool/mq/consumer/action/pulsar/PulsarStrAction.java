@@ -81,7 +81,7 @@ public class PulsarStrAction implements IAction<String> {
                 if (throwable != null) {
                     log.error("error is ", throwable);
                 } else {
-                    log.info("original partition is [{}] message id is [{}] header is [{}] message id is [{}]",
+                    log.info("original partition is {} message id is {} header is [{}] message id is {}",
                             msg.getPartition(), msg.getMessageId(), msg.getHeaders(), messageId);
                 }
             });
