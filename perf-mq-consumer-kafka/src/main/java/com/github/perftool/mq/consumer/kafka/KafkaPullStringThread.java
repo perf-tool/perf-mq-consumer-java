@@ -22,8 +22,11 @@ package com.github.perftool.mq.consumer.kafka;
 import com.github.perftool.mq.consumer.action.module.ActionMsg;
 import com.github.perftool.mq.consumer.common.service.ActionService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 
 public class KafkaPullStringThread extends AbstractKafkaPullThread<String> {
@@ -48,6 +51,13 @@ public class KafkaPullStringThread extends AbstractKafkaPullThread<String> {
         actionMsg.setMessageId(String.valueOf(record.offset()));
         actionMsg.setPartition(record.partition());
         actionMsg.setContent(record.value());
+        if (record.headers() != null){
+            HashMap<String, String> map = new HashMap<>();
+            for (Header header : record.headers()) {
+                map.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
+            }
+            actionMsg.setHeaders(map);
+        }
         actionService.handleStrMsg(actionMsg);
     }
 }
