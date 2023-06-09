@@ -50,6 +50,47 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
 
     private final HashMap<Integer, Long> partitionOffsetMap;
 
+    public AbstractKafkaPullThread(int i, ActionService actionService, List<String> topics, KafkaConfig kafkaConfig) {
+        super(i, actionService);
+        this.topics = topics;
+        this.kafkaConfig = kafkaConfig;
+        partitionOffsetMap = new HashMap<>();
+        this.consumer = buildConsumer(topics, kafkaConfig);
+    }
+
+    protected abstract String getKeyDeserializerName();
+
+    protected abstract String getValueDeserializerName();
+
+    @Override
+    protected void pull() {
+        try {
+            ConsumerRecords<T, T> consumerRecords = consumer.poll(Duration.ofMillis(kafkaConfig.pollMs));
+            if (System.currentTimeMillis() - lastPollTime > TimeUnit.SECONDS.toMillis(1)) {
+                log.warn("topics {} the last poll message is greater than 1 second", topics);
+            }
+            lastPollTime = System.currentTimeMillis();
+            for (ConsumerRecord<T, T> record : consumerRecords) {
+                Long lastOffset = partitionOffsetMap.getOrDefault(record.partition(), 0L);
+                if (record.offset() - lastOffset > 1) {
+                    log.warn("partition {} offset jump, from {} to {} diff {}",
+                            record.partition(), lastOffset, record.offset(), record.offset() - lastOffset);
+                }
+                partitionOffsetMap.put(record.partition(), record.offset());
+                log.debug("receive a record, offset is [{}]", record.offset());
+                this.handle(record);
+            }
+        } catch (KafkaException e) {
+            if (KafkaUtil.isRecordCorrupt(e)) {
+                log.info("record is corrupt, rebuilding consumer", e);
+                this.consumer.close();
+                this.consumer = buildConsumer(this.topics, this.kafkaConfig);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     private KafkaConsumer<T, T> buildConsumer(List<String> topics, KafkaConfig kafkaConfig) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.addr);
@@ -82,43 +123,6 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
         KafkaConsumer<T, T> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(topics);
         return consumer;
-    }
-
-    public AbstractKafkaPullThread(int i, ActionService actionService, List<String> topics, KafkaConfig kafkaConfig) {
-        super(i, actionService);
-        this.topics = topics;
-        this.kafkaConfig = kafkaConfig;
-        partitionOffsetMap = new HashMap<>();
-        this.consumer = buildConsumer(topics, kafkaConfig);
-    }
-
-    protected abstract String getKeyDeserializerName();
-
-    protected abstract String getValueDeserializerName();
-
-    @Override
-    protected void pull() {
-        try {
-            ConsumerRecords<T, T> consumerRecords = consumer.poll(Duration.ofMillis(kafkaConfig.pollMs));
-            if (System.currentTimeMillis() - lastPollTime > TimeUnit.SECONDS.toMillis(1)) {
-                log.warn("topics {} the last poll message is greater than 1 second", topics);
-            }
-            lastPollTime = System.currentTimeMillis();
-            for (ConsumerRecord<T, T> record : consumerRecords) {
-                Long lastOffset = partitionOffsetMap.getOrDefault(record.partition(), 0L);
-                if (record.offset() - lastOffset > 1) {
-                    log.warn("partition {} offset jump, from {} to {} diff {}",
-                            record.partition(), lastOffset, record.offset(), record.offset() - lastOffset);
-                }
-                partitionOffsetMap.put(record.partition(), record.offset());
-                log.debug("receive a record, offset is [{}]", record.offset());
-                this.handle(record);
-            }
-        } catch (KafkaException e) {
-            if (e.getMessage().contains("Record is corrupt")) {
-                this.consumer = buildConsumer(this.topics, this.kafkaConfig);
-            }
-        }
     }
 
     protected abstract void handle(ConsumerRecord<T, T> record);

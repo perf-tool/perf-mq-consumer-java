@@ -20,6 +20,7 @@
 package com.github.perftool.mq.consumer.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 
@@ -28,6 +29,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KafkaUtil {
+    public static boolean isRecordCorrupt(KafkaException e) {
+        if (e.getMessage().contains(KafkaConst.ERROR_MSG_CORRUPT)) {
+            return true;
+        } else {
+            if (e.getCause() instanceof KafkaException ke) {
+                return isRecordCorrupt(ke);
+            } else {
+                return false;
+            }
+        }
+    }
     public static Map<String, String> headers(ConsumerRecord<?, ?> record) {
         Headers headers = record.headers();
         Map<String, String> map = new HashMap<>();
