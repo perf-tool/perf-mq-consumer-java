@@ -27,6 +27,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
@@ -43,16 +44,13 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
 
     private final KafkaConfig kafkaConfig;
 
-    private final KafkaConsumer<T, T> consumer;
+    private KafkaConsumer<T, T> consumer;
 
     private long lastPollTime;
 
     private final HashMap<Integer, Long> partitionOffsetMap;
 
-    public AbstractKafkaPullThread(int i, ActionService actionService, List<String> topics, KafkaConfig kafkaConfig) {
-        super(i, actionService);
-        this.topics = topics;
-        this.kafkaConfig = kafkaConfig;
+    private KafkaConsumer<T, T> buildConsumer(List<String> topics, KafkaConfig kafkaConfig) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.addr);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaConfig.groupId);
@@ -81,9 +79,17 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
                     kafkaConfig.saslUsername, kafkaConfig.saslPassword);
             props.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
         }
-        consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(this.topics);
+        KafkaConsumer<T, T> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(topics);
+        return consumer;
+    }
+
+    public AbstractKafkaPullThread(int i, ActionService actionService, List<String> topics, KafkaConfig kafkaConfig) {
+        super(i, actionService);
+        this.topics = topics;
+        this.kafkaConfig = kafkaConfig;
         partitionOffsetMap = new HashMap<>();
+        this.consumer = buildConsumer(topics, kafkaConfig);
     }
 
     protected abstract String getKeyDeserializerName();
@@ -92,20 +98,26 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
 
     @Override
     protected void pull() {
-        ConsumerRecords<T, T> consumerRecords = consumer.poll(Duration.ofMillis(kafkaConfig.pollMs));
-        if (System.currentTimeMillis() - lastPollTime > TimeUnit.SECONDS.toMillis(1)) {
-            log.warn("topics {} the last poll message is greater than 1 second", topics);
-        }
-        lastPollTime = System.currentTimeMillis();
-        for (ConsumerRecord<T, T> record : consumerRecords) {
-            Long lastOffset = partitionOffsetMap.getOrDefault(record.partition(), 0L);
-            if (record.offset() - lastOffset > 1) {
-                log.warn("partition {} offset jump, from {} to {} diff {}",
-                        record.partition(), lastOffset, record.offset(), record.offset() - lastOffset);
+        try {
+            ConsumerRecords<T, T> consumerRecords = consumer.poll(Duration.ofMillis(kafkaConfig.pollMs));
+            if (System.currentTimeMillis() - lastPollTime > TimeUnit.SECONDS.toMillis(1)) {
+                log.warn("topics {} the last poll message is greater than 1 second", topics);
             }
-            partitionOffsetMap.put(record.partition(), record.offset());
-            log.debug("receive a record, offset is [{}]", record.offset());
-            this.handle(record);
+            lastPollTime = System.currentTimeMillis();
+            for (ConsumerRecord<T, T> record : consumerRecords) {
+                Long lastOffset = partitionOffsetMap.getOrDefault(record.partition(), 0L);
+                if (record.offset() - lastOffset > 1) {
+                    log.warn("partition {} offset jump, from {} to {} diff {}",
+                            record.partition(), lastOffset, record.offset(), record.offset() - lastOffset);
+                }
+                partitionOffsetMap.put(record.partition(), record.offset());
+                log.debug("receive a record, offset is [{}]", record.offset());
+                this.handle(record);
+            }
+        } catch (KafkaException e) {
+            if (e.getMessage().contains("Record is corrupt")) {
+                this.consumer = buildConsumer(this.topics, this.kafkaConfig);
+            }
         }
     }
 
