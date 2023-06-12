@@ -49,7 +49,6 @@
         <annotations.version>24.0.1</annotations.version>
         <apollo.version>2.1.0</apollo.version>
         <influxdb-client-java.version>6.9.0</influxdb-client-java.version>
-        <kafka.version>2.4.0</kafka.version>
         <mqtt.version>1.2.5</mqtt.version>
         <mongo-java-driver.version>3.12.14</mongo-java-driver.version>
         <perf-trace.version>0.0.9</perf-trace.version>
