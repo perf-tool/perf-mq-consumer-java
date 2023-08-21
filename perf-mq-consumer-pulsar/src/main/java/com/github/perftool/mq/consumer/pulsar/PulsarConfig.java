@@ -146,6 +146,15 @@ public class PulsarConfig {
     @Value("${PULSAR_PRINT_LOG_MSG_DELAY_MS:1000}")
     public int printLogMsgDelayMs;
 
+    @Value("${PULSAR_AUTH_TOKEN_ENABLE:false}")
+    public boolean authTokenEnable;
+
+    @Value("${PULSAR_AUTH_TOKEN:}")
+    public String authToken;
+
+    @Value("${PULSAR_SECURE_CONNECTION_ENABLE:false}")
+    public boolean secureConnectionEnable;
+
     public String getSubscriptionName() {
         if (StringUtils.isEmpty(subscriptionName)) {
             return UUID.randomUUID().toString();
