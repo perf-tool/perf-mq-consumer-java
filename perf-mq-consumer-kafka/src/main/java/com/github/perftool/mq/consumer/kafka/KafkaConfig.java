@@ -81,4 +81,7 @@ public class KafkaConfig {
     @Value("${KAFKA_SASL_SSL_TRUSTSTORE_PASSWORD:}")
     public String saslSslTrustStorePassword;
 
+    @Value("${KAFKA_SASL_SSL_IGNORE_CERT:false}")
+    public boolean saslSslIgnoreCertFile;
+
 }
