@@ -106,8 +106,14 @@ public abstract class AbstractKafkaPullThread<T> extends AbstractPullThread {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, getValueDeserializerName());
         if (kafkaConfig.saslEnable) {
             if (kafkaConfig.saslSslEnable) {
-                props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, kafkaConfig.saslSslTrustStoreLocation);
-                props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, kafkaConfig.saslSslTrustStorePassword);
+                if (kafkaConfig.saslSslIgnoreCertFile) {
+                    props.put(SslConfigs.SSL_ENGINE_FACTORY_CLASS_CONFIG,
+                            TrustAllCertsSslEngineFactory.class.getName());
+                } else {
+                    props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, kafkaConfig.saslSslTrustStoreLocation);
+                    props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, kafkaConfig.saslSslTrustStorePassword);
+                }
+
                 props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
                 props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_SSL.name);
             } else {
