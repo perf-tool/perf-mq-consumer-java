@@ -48,7 +48,7 @@
         <!-- dependency -->
         <annotations.version>24.1.0</annotations.version>
         <apollo.version>2.1.0</apollo.version>
-        <influxdb-client-java.version>6.10.0</influxdb-client-java.version>
+        <influxdb-client-java.version>6.11.0</influxdb-client-java.version>
         <mqtt.version>1.2.5</mqtt.version>
         <mongo-java-driver.version>3.12.14</mongo-java-driver.version>
         <perf-trace.version>0.0.9</perf-trace.version>
