@@ -55,7 +55,7 @@
         <pulsar.verion>3.1.2</pulsar.verion>
         <sh-sdk.version>3.1.15</sh-sdk.version>
         <!-- plugin -->
-        <checkstyle-plugin.version>3.3.1</checkstyle-plugin.version>
+        <checkstyle-plugin.version>3.5.0</checkstyle-plugin.version>
         <compiler-plugin.version>3.12.1</compiler-plugin.version>
         <jacoco.version>0.8.11</jacoco.version>
         <puppycrawl.version>10.18.1</puppycrawl.version>
